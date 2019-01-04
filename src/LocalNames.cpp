@@ -1,5 +1,4 @@
-#include "cocl/LocalNames.h"
-#include "cocl/llvm_dump.h"
+#include "LocalNames.h"
 
 #include "EasyCL/util/easycl_stringhelper.h"
 
@@ -15,7 +14,7 @@ std::string LocalNames::getName(Value *value) {
     auto it = nameByValue.find(value);
     if(it == nameByValue.end()) {
         cout << "this value not found in local names:" << endl;
-        COCL_LLVM_DUMP(value);
+        value->dump();
         cout << endl;
         throw runtime_error("value not found in local name map");
     }
@@ -68,7 +67,7 @@ bool LocalNames::hasValue(llvm::Value *value) {
 
 std::string LocalNames::createName(Value *value, std::string name) {
     if(valueByName.find(name) != valueByName.end()) {
-        COCL_LLVM_DUMP(valueByName[name]);
+        valueByName[name]->dump();
         cout << endl;
         throw runtime_error("duplicate name " + name);
     }

@@ -25,7 +25,7 @@
 
 #include "gtest/gtest.h"
 
-#include "cocl/GlobalNames.h"
+#include "GlobalNames.h"
 
 using namespace std;
 using namespace cocl;

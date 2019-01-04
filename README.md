@@ -14,7 +14,7 @@ Build applications written in NVIDIA® CUDA™ code for OpenCL™ 1.2 devices.
 - Let's use [cuda_sample.cu](https://github.com/hughperkins/Coriander/blob/76a849d9510276bc67167c9a7676d64ff04c3e4a/test/cuda_sample.cu)
 - Compile, using `cocl`:
 ```
-$ cocl_py cuda_sample.cu
+$ cocl cuda_sample.cu
    ...
    ... (bunch of compily stuff) ...
    ...
@@ -66,16 +66,6 @@ and appropriate OpenCL drivers installed, for the GPU. Both linux and Mac system
 
 For installation, please see [installation](doc/installation.md)
 
-## Plugins
-
-You can install the following plugins:
-
-- [Coriander-clblast](https://github.com/hughperkins/coriander-clblast): just do `cocl_plugins.py install --repo-url https://github.com/hughperkins/coriander-clblast`
-- [Coriander-dnn](https://github.com/hughperkins/coriander-dnn): just do `cocl_plugins.py install --repo-url https://github.com/hughperkins/coriander-dnn`
-- Your plugin here?
-
-[How to create a plugin](doc/plugins.md)
-
 ## Add to your own `cmake` project
 
 - use `cocl_add_executable` and `cocl_add_library`
@@ -89,15 +79,12 @@ See [testing](doc/testing.md)
 
 See [assumptions](doc/assumptions.md)
 
-## Roadmap
-
-<img src="doc/img/roadmap.png?raw=true" />
-
 ## Libraries
 
 Coriander uses the following libraries:
 
 - [clang/llvm](http://llvm.org/): c/c++ parser/compiler; many contributors
+- [CLBlast](https://github.com/cnugteren/CLBlast): Cedric Nugteren's excellent BLAS for OpenCL
 - [thrust](https://github.com/thrust/thrust): parallel GPU library, from NVIDIA®
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp): yaml for c++, by Jesse Beder
 - [EasyCL](https://github.com/hughperkins/EasyCL): wrapper for OpenCL 1.2 boilerplate
@@ -119,16 +106,10 @@ Please cite: [CUDA-on-CL: a compiler and runtime for running NVIDIA® CUDA™ C+
 
 ## News
 
-- June 23:
-  - factorized CLBlast implementation of NVIDIA® CUDA™ cuBLAS API, into new plugin [coriander-clblast](https://github.com/hughperkins/coriander-clblast)
-- June 21:
-  - created a new release [v6.0.0](https://github.com/hughperkins/coriander/releases/tag/v6.0.0), that marks a bunch of changes:
-    - incorporates of course the earlier changes:
-      - took some big steps towards portability and Windows compilation, ie using python 2.7 scripts, rather than bash scripts, and fixing many Windows-related compilation issues
-      - the plugin architecture
-      - factorizing the partial NVIDIA® CUDA™ cuDNN API implementation into a new plugin [coriander-dnn](https://github.com/hughperkins/coriander-dnn)
-    - moved the default installation directory from `/usr/local` to `~/coriander`
-      - this means that plugins can be installed without `sudo`
-      - it also makes it relatively easy to wipe and reinstall, for more effective jenkins testing
-    - `install_distro.py` is now considerably more tested than a few days ago, and handles downloading `llvm-4.0` automatically
+- June 4:
+  - added cmake macros `cocl_add_executable` and `cocl_add_library`
+  - these replace the previous `add_cocl_executable`, and have the advantage that they are standard targets, that you can use with `target_link_libraries` and so on
+  - see [cmake usage](doc/cmake_usage.md)
+- May 31:
+  - added a developer debugging option `COCL_DUMP_CONFIG`, to allow easy inspection of buffers returned by kernel calls, see [options](doc/options.md)
 - [Older news](doc/news.md)

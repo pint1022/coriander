@@ -22,6 +22,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include "pthread.h"
 
 #include "EasyCL/EasyCL.h"
 
@@ -35,13 +36,20 @@ using namespace easycl;
 #define OFFSETS_32BIT_ENV_VAR "COCL_OFFSETS_32BIT"
 
 namespace cocl {
-    std::mutex clcontextcreation_mutex;
+    static pthread_key_t key;
+    static pthread_once_t key_once = PTHREAD_ONCE_INIT;
 
+    pthread_mutex_t clcontextcreation_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+    static void make_key() {
+        (void) pthread_key_create(&key, NULL);
+    }
     Context::Context(int gpuOrdinal) : gpuOrdinal(gpuOrdinal) {
         COCL_PRINT(cout << "Context() " << this << endl);
-        std::lock_guard< std::mutex > guard(clcontextcreation_mutex);
+        pthread_mutex_lock(&clcontextcreation_mutex);
         cocl::CoclDevice *coclDevice = cocl::getCoclDeviceByGpuOrdinal(gpuOrdinal);
         cl.reset(EasyCL::createForPlatformDeviceIds(coclDevice->platformId, coclDevice->deviceId));
+        pthread_mutex_unlock(&clcontextcreation_mutex);
         default_stream.reset(new CoclStream(cl.get()));
     }
     Context::~Context() {
@@ -49,10 +57,10 @@ namespace cocl {
     }
 
     ContextMutex::ContextMutex(Context *context) : context(context) {
-        context->mu.lock();
+        pthread_mutex_lock(&context->mutex);
     }
     ContextMutex::~ContextMutex() {
-        context->mu.unlock();
+        pthread_mutex_unlock(&context->mutex);
     }
 
     ThreadVars::ThreadVars() {
@@ -73,10 +81,12 @@ namespace cocl {
         return currentContext;
     }
 
-    thread_local ThreadVars *threadVars = nullptr;
     ThreadVars *getThreadVars() {
-        if(threadVars == nullptr) {
+        pthread_once(&key_once, make_key);
+        ThreadVars *threadVars = (ThreadVars *)pthread_getspecific(key);
+        if(threadVars == 0) {
             threadVars = new ThreadVars();
+            pthread_setspecific(key, threadVars);
         }
         return threadVars;
     }

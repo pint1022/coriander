@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "cocl/basicblockdumper.h"
-#include "cocl/llvm_dump.h"
+#include "basicblockdumper.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -99,7 +98,7 @@ bool BasicBlockDumper::runGeneration(const std::map<llvm::Function *, llvm::Type
             }
         } catch(runtime_error &e) {
             cout << "basicblockdumper.runGeneration got exception whilst processing:" << endl;
-            COCL_LLVM_DUMP(inst);
+            inst->dump();
             cout << endl;
             throw e;
         }

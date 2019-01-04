@@ -86,9 +86,3 @@ cmbuild/
 mac/
 build*/
 /soft/
-out.txt
-
-/eigen/
-/jenkins-out*.txt
-/out*.txt
-/artifacts.zip

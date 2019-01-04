@@ -12,17 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "cocl/function_dumper.h"
+#include "function_dumper.h"
 
-#include "cocl/struct_clone.h"
-#include "cocl/mutations.h"
-#include "cocl/basicblockdumper.h"
+#include "struct_clone.h"
+#include "mutations.h"
+#include "basicblockdumper.h"
 #include "EasyCL/util/easycl_stringhelper.h"
-#include "cocl/new_instruction_dumper.h"
+#include "new_instruction_dumper.h"
 
 #include "llvm/IR/Function.h"
-
-#include "cocl/llvm_dump.h"
 
 #include <sstream>
 
@@ -320,9 +318,9 @@ std::string FunctionDumper::dumpInternalFunctionDeclarationWithoutReturn(llvm::F
         }
         Argument *arg = &*it;
         string argName = localNames.getOrCreateName(arg, arg->getName().str());
-        // Type *argType = arg->getType();
+        Type *argType = arg->getType();
         string argdeclaration = "";
-        // bool ispointer = isa<PointerType>(argType);
+        bool ispointer = isa<PointerType>(argType);
         argdeclaration = typeDumper->dumpType(arg->getType()) + " " + argName;
         declaration << argdeclaration;
         i++;
@@ -351,7 +349,7 @@ std::string FunctionDumper::dumpTerminator(Type **pReturnType, Instruction *term
         terminatorCl = dumpBranch(branch);
     } else {
         cout << "unhandled terminator type:";
-        COCL_LLVM_DUMP(terminator);
+        terminator->dump();
         throw runtime_error("unhandled terminator type");
     }
     return terminatorCl;

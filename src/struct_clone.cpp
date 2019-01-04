@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "cocl/struct_clone.h"
+#include "struct_clone.h"
 
-#include "cocl/ir-to-opencl-common.h"
+#include "ir-to-opencl-common.h"
 #include "EasyCL/util/easycl_stringhelper.h"
-#include "cocl/mutations.h"
-
-#include "cocl/llvm_dump.h"
+#include "mutations.h"
 
 #include "llvm/Support/raw_os_ostream.h"
 #include "llvm/IR/Constants.h"
@@ -97,8 +95,7 @@ StructType *StructCloner::cloneNoPointers(StructType *inType) {
         if(StructType *childStructType = dyn_cast<StructType>(childType)) {
             childType = cloneNoPointers(childStructType);
             newChildren.push_back(childType);
-        // } else if(PointerType *childAsPointer = dyn_cast<PointerType>(childType)) {
-        } else if(isa<PointerType>(childType)) {
+        } else if(PointerType *childAsPointer = dyn_cast<PointerType>(childType)) {
             // ignore
 
             // // assume is a virtual pointer
@@ -170,7 +167,7 @@ std::string StructCloner::writeClCopyToDevicesideStruct(llvm::StructType *ptrful
             dstidx++;
         } else {
             outs() << "unhandled type\n";
-            COCL_LLVM_DUMP(childType);
+            childType->dump();
             outs() << "\n";
             throw runtime_error("unhandled type");
             srcidx++;
@@ -253,7 +250,7 @@ llvm::Instruction *StructCloner::writeHostsideIrCopyToMarshallingStruct(
                 }
             } else {
                 outs() << "unhandled type:\n";
-                COCL_LLVM_DUMP(childType);
+                childType->dump();
                 outs() << "\n";
                 throw runtime_error("structcloner unhandled type");
             }
@@ -262,7 +259,7 @@ llvm::Instruction *StructCloner::writeHostsideIrCopyToMarshallingStruct(
         }
     } else {
         outs() << "skipping type:\n";
-        COCL_LLVM_DUMP(structType);
+        structType->dump();
         outs() << "\n";
     }
     return lastInst;
@@ -299,7 +296,7 @@ void StructCloner::walkType(Module *M, StructInfo *structInfo, int level, int of
     } else if(isa<IntegerType>(type)) {
     } else if(type->getPrimitiveSizeInBits() != 0) {
     } else {
-        COCL_LLVM_DUMP(type);
+        type->dump();
         throw runtime_error("walktype type not handled");
     }
 }

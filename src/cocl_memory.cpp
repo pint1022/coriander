@@ -19,7 +19,7 @@
 #include "cocl/cocl_context.h"
 #include "cocl/cocl_device.h"
 
-#include "cocl/fill_buffer.h"
+#include "fill_buffer.h"
 
 #include <iostream>
 #include <memory>
@@ -28,6 +28,8 @@
 #include <set>
 
 #include "EasyCL/EasyCL.h"
+
+#include "pthread.h"
 
 using namespace std;
 using namespace cocl;
@@ -42,6 +44,10 @@ using namespace easycl;
 #else
 #define COCL_PRINT(x) 
 #endif
+
+namespace cocl {
+    pthread_mutex_t print_mutex = PTHREAD_MUTEX_INITIALIZER;
+}
 
 namespace cocl {
     // we should index these, but a set is ok-ish for now. maybe
@@ -137,8 +143,7 @@ size_t cuMemGetInfo(size_t *free, size_t *total) {
 size_t cudaMemcpyAsync (void *dst, const void *src, size_t count, size_t cudaMemcpyKind, char *_queue) {
     ThreadVars *v = getThreadVars();
     CoclStream *coclStream = (CoclStream *)_queue;
-    COCL_PRINT("cudaMemcpyAsync kind=" << cudaMemcpyKind << " ctx=" << (void *)v->currentContext
-       << " src=" << src << " dst=" << dst << " count=" << count);
+    COCL_PRINT("cudaMemcpyAsync count=" << count << " cudaMemcpyKind=" << cudaMemcpyKind << " context=" << (void *)v->currentContext);
 
     if(coclStream == 0) {
         coclStream = v->currentContext->default_stream.get();
@@ -378,10 +383,6 @@ size_t  cuMemcpyDtoH(void *host_dst, CUdeviceptr gpu_src, size_t size) {
 }
 
 size_t cudaMalloc(void **_pMemory, size_t N) {
-    if(N==0){
-        (*_pMemory)=0;
-        return 0;
-    }
     Memory *memory = Memory::newDeviceAlloc(N);
     COCL_PRINT("cudaMalloc using cl, size " << N << " memory=" << (void *)memory << " fakePos=" << memory->fakePos);
     *_pMemory = (void *)memory->fakePos;
@@ -397,9 +398,6 @@ size_t cudaMalloc(float **pMemory, size_t N) {
 }
 
 size_t cudaFree(void *_memory) {
-    if(_memory==0){
-        return 0;
-    }
     Memory *memory = findMemory((char *)_memory);
     COCL_PRINT("cudafree using opencl memory=" << memory);
     delete memory;

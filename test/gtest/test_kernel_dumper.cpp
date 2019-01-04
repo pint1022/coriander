@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "cocl/kernel_dumper.h"
+#include "kernel_dumper.h"
 
-#include "cocl/type_dumper.h"
-#include "cocl/GlobalNames.h"
-#include "cocl/LocalNames.h"
+#include "type_dumper.h"
+#include "GlobalNames.h"
+#include "LocalNames.h"
 #include "EasyCL/util/easycl_stringhelper.h"
 
 #include "llvm/IRReader/IRReader.h"
@@ -36,7 +36,7 @@ using namespace llvm;
 
 namespace {
 
-string ll_path = CMAKE_CURRENT_SOURCE_DIR "/test_kernel_dumper.ll";  // this is a bit hacky, but fine-ish for now
+string ll_path = "../test/gtest/test_kernel_dumper.ll";  // this is a bit hacky, but fine-ish for now
 
 std::string runKernelDumper(KernelDumper *kernelDumper, int numClmemArgs) {
     // assumes all args unique
