@@ -80,39 +80,38 @@ size_t cudnnGetConvolutionBackwardFilterWorkspaceSize(
 
 size_t cudnnConvolutionForward(
     cudnnHandle_t handle,
-    float *p_alpha,
-    cudnnTensorDescriptor_t inputTensorDesc, float *inputData,
-    cudnnFilterDescriptor_t filterDesc, float *filterData,
+    const float *p_alpha,
+    cudnnTensorDescriptor_t inputDesc, const float *inputData,
+    cudnnFilterDescriptor_t filterDesc, const float *filterData,
     cudnnConvolutionDescriptor_t convDesc,
     void *workspaceData, CoclDnnSizeType workspaceSize,
-    float *p_beta,
-    cudnnTensorDescriptor_t outputTensorDesc, float *outputData
+    const float *p_beta,
+    cudnnTensorDescriptor_t outputDesc, float *outputData
 );
 size_t cudnnConvolutionBackwardData(
     cudnnHandle_t handle,
     float *p_alpha,
-    cudnnFilterDescriptor_t filtersDesc, float *filters_data,
-    cudnnTensorDescriptor_t gradOutputDesc, float *gradOutput_data,
+    cudnnFilterDescriptor_t filterDesc, const float *filterData,
+    cudnnTensorDescriptor_t gradOutputDesc, float *gradOutputData,
     cudnnConvolutionDescriptor_t convDesc,
-    void *workspace,
-    CoclDnnGeometryType workspaceSize,
+    void *workspaceData, CoclDnnGeometryType workspaceSize,
     float *p_beta,
-    cudnnTensorDescriptor_t gradInputDesc, float *gradInput
-);
+    cudnnTensorDescriptor_t gradInputDesc, float *gradInputData
+) ;
 size_t cudnnConvolutionBackwardFilter(
     cudnnHandle_t handle,
     float *p_alpha,
-    cudnnTensorDescriptor_t inputDesc, float *input_data,
-    cudnnTensorDescriptor_t gradOutputDesc, float *gradOutput_data,
+    cudnnTensorDescriptor_t inputDesc, const float *inputData,
+    cudnnTensorDescriptor_t gradOutputDesc, float *gradOutputData,
     cudnnConvolutionDescriptor_t convDesc,
-    void *workspace_data, CoclDnnGeometryType workspaceSize,
+    void *workspaceData, CoclDnnGeometryType workspaceSize,
     float *p_beta,
-    cudnnFilterDescriptor_t filterDesc, float *gradInput_data
-);
+    cudnnFilterDescriptor_t filterDesc, float *gradFilterData
+) ;
 size_t cudnnConvolutionBackwardBias(
     cudnnHandle_t handle,
     float *p_alpha,
-    cudnnTensorDescriptor_t gradOutputDesc, float *gradOutputData,
+    cudnnTensorDescriptor_t gradOutputDesc, const float *gradOutputData,
     float *p_beta,
     cudnnTensorDescriptor_t gradBiasDesc, float *gradBiasData
 );

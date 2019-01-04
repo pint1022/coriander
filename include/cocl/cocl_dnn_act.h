@@ -26,11 +26,12 @@ extern "C" {
     size_t cudnnActivationForward(
         cudnnHandle_t handle,
         cudnnActivationDescriptor_t activationDesc,
-        float *p_alpha,
-        cudnnTensorDescriptor_t inputDesc, float *inputData,
-        float *p_beta,
+        const float *p_alpha,
+        cudnnTensorDescriptor_t inputDesc, const float *inputData,
+        const float *p_beta,
         cudnnTensorDescriptor_t outputDesc, float *outputData
     );
+
     size_t cudnnActivationBackward(
         cudnnHandle_t handle,
         cudnnActivationDescriptor_t activationDesc,
