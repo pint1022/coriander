@@ -5,7 +5,7 @@
 #include <map>
 #include <set>
 #include <memory>
-#include <mutex>
+#include "pthread.h"
 
 extern "C" {
     size_t cuCtxSynchronize(void);
@@ -31,6 +31,8 @@ namespace easycl {
 }
 
 namespace cocl {
+    // int getNumGpus();
+
     class Memory;
     class CoclStream;
 
@@ -55,27 +57,30 @@ namespace cocl {
         std::map< long long, cocl::Memory *>memoryByAllocPos;
         int numKernelCalls = 0;
         const int gpuOrdinal;
+        pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
         easycl::EasyCL *getCl() {
             return cl.get();
         }
-        std::mutex mu;
     };
-
     class ContextMutex {
     public:
         ContextMutex(Context *context);
         ~ContextMutex();
         Context *context;
     };
+    // typedef Context *PContext;
 
     class ThreadVars {
     public:
         ThreadVars();
         ~ThreadVars();
         Context *getContext();
+        // int currentDevice = 0;
+        // cocl::CoclDevice *currentDevice = 0;
         cocl::Context *currentContext = 0;
         int currentGpuOrdinal = 0;
         bool offsets_32bit = false;
+        // std::map<int, easycl::EasyCL*> clByDeviceIdx;
     };
 
     ThreadVars *getThreadVars();

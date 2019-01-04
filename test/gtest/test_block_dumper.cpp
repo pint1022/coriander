@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "cocl/basicblockdumper.h"
+#include "basicblockdumper.h"
 
-#include "cocl/type_dumper.h"
-#include "cocl/GlobalNames.h"
-#include "cocl/LocalNames.h"
-
-#include "cocl/llvm_dump.h"
+#include "type_dumper.h"
+#include "GlobalNames.h"
+#include "LocalNames.h"
 
 #include "llvm/IRReader/IRReader.h"
 #include "llvm/IR/Module.h"
@@ -37,7 +35,7 @@ using namespace llvm;
 
 namespace {
 
-string ll_path = CMAKE_CURRENT_SOURCE_DIR "/test_block_dumper.ll";  // this is a bit hacky, but fine-ish for now
+string ll_path = "../test/gtest/test_block_dumper.ll";  // this is a bit hacky, but fine-ish for now
 
 class GlobalWrapper {
 public:
@@ -99,7 +97,7 @@ public:
         for(auto it=F->arg_begin(); it != F->arg_end(); it++) {
             Argument *arg = &*it;
             // sring name = localNames.getOrCreateName(arg, arg->getName().str());
-            COCL_LLVM_DUMP(arg);
+            arg->dump();
             LocalValueInfo *localValueInfo = LocalValueInfo::getOrCreate(
                 &localNames, &localValueInfos, arg, arg->getName().str());
             localValueInfo->setExpression(localValueInfo->name);
@@ -228,7 +226,7 @@ TEST(test_block_dumper, basic2) {
     }
     ASSERT_EQ(1u, blockDumper->neededFunctions.size());
     Function *neededFunction = *blockDumper->neededFunctions.begin();
-    COCL_LLVM_DUMP(neededFunction);
+    neededFunction->dump();
     cout << endl;
     cout << neededFunction->getName().str() << endl;
     ASSERT_EQ("someFunc_gp", neededFunction->getName().str());

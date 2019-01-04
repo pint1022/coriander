@@ -25,8 +25,11 @@
 
 #include "EasyCL/EasyCL.h"
 
+// #include "CL/cl.h"
+
 using namespace std;
 using namespace cocl;
+// using namespace easycl;
 
 #ifdef COCL_PRINT
 #undef COCL_PRINT
@@ -45,6 +48,7 @@ size_t cuDeviceGetAttribute(
     // cudaDevAttrComputeCapabilityMinor,
 
     cocl::CoclDevice *coclDevice = getCoclDeviceByGpuOrdinal(device);
+    // COCL_PRINT("cuDeviceGetAttribute device ordinal=" << coclDevice->gpuOrdinal);
     cl_device_id clDeviceId = coclDevice->deviceId;
     switch(attribute) {
         case cudaDevAttrComputeCapabilityMajor:
@@ -99,14 +103,14 @@ size_t cuDeviceGetAttribute(
 
         case CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK:
         case cudaDevAttrMaxRegistersPerBlock:
-            *value = 16384;  // should be high enough so thrust doesnt send occupancy to zero
+            *value = 64;
             COCL_PRINT("requesting MAX_REGISTERS_PER_BLOCK: " << * value);
             break;
 
         case CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_MULTIPROCESSOR:
         case cudaDevAttrMaxThreadsPerBlock:  // ok, this is probably wrong...
         case cudaDevAttrMaxThreadsPerMultiProcessor:
-            *value = 2048;
+            *value = 128;
             COCL_PRINT("requesting MAX_THREADS_PER_MULTIPROCESSOR: " << *value);
             break;
 
@@ -126,6 +130,7 @@ size_t cuDeviceGetAttribute(
             throw runtime_error("attribute not implemented");
     }
 
+    // cout << "cuDeviceGetAttribute redirected att=" << attribute << " value=" << *value << endl;
     return 0;
 }
 
@@ -133,6 +138,8 @@ size_t cudaDeviceGetAttribute(
        int *value, int attribute, CUdevice device) {
     return cuDeviceGetAttribute(value, attribute, device);
 }
+
+// cudaSharedMemConfig cudaSharedMemBankSizeEightByte;
 
 size_t cuDeviceGetName(char *buf, int bufsize, CUdevice device) {
     cocl::CoclDevice *coclDevice = getCoclDeviceByGpuOrdinal(device);
@@ -162,9 +169,6 @@ size_t cuDeviceComputeCapability(int *cc_major, int *cc_minor, CUdevice device) 
     return 0;
 }
 
-// these properties should be such that thrust wont set num groups and group size to 0
-// see>       thrust/system/cuda/bulk/detail/cuda_launcher/cuda_launch_config.hpp
-// (Note: NOT thrust/system/cuda/detail/cuda_launch_config.h ...)
 size_t cudaGetDeviceProperties (struct cudaDeviceProp *prop, CUdevice device) {
     cocl::CoclDevice *coclDevice = getCoclDeviceByGpuOrdinal(device);
     COCL_PRINT("cudaGetDeviceProperties gpuOrdinal=" << coclDevice->gpuOrdinal);
@@ -173,7 +177,7 @@ size_t cudaGetDeviceProperties (struct cudaDeviceProp *prop, CUdevice device) {
 
     prop->totalGlobalMem = easycl::getDeviceInfoInt64(clDeviceId, CL_DEVICE_GLOBAL_MEM_SIZE);
     prop->sharedMemPerBlock = easycl::getDeviceInfoInt64(clDeviceId, CL_DEVICE_LOCAL_MEM_SIZE);
-    prop->regsPerBlock = 1024; // should be high enough that thrust wont set occupancy to 0
+    prop->regsPerBlock = 64;
     prop->warpSize = 32;
     // prop->memPitch = 4; // whats this?
     // prop->maxThreadsPerBlock = easycl::getDeviceInfoInt(deviceid, CL_DEVICE_MAX_WORK_GROUP_SIZE);
@@ -199,12 +203,14 @@ size_t cudaGetDeviceProperties (struct cudaDeviceProp *prop, CUdevice device) {
     // prop->pciBusID = 0;
     // prop->pciDeviceID = 0;
     // prop->tccDriver = 0; // no idea
-    prop->maxThreadsPerMultiProcessor = 2560;  // used by thrust to calculate occupancy.  occupancy cannot go above maxThreadsPerSM / maxThreadsPerBlock (ish)
+    prop->maxThreadsPerMultiProcessor = 128;
     return 0;
 }
 
 size_t cuDeviceGetProperties(struct cudaDeviceProp *device_properties, CUdevice device_ordinal) {
+    // COCL_PRINT("cuDeviceGetProperties ordinal=" << device_ordinal);
     return cudaGetDeviceProperties(device_properties, device_ordinal);
+    // return -1;
 }
 
 size_t cudaDeviceSetSharedMemConfig(cudaSharedMemConfig config) {
